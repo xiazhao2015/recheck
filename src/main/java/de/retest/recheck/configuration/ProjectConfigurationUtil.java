@@ -9,7 +9,8 @@ public class ProjectConfigurationUtil {
 	}
 
 	public static Path findProjectConfigurationFolder() {
-		return ProjectRootFinderUtil.getProjectRoot().resolve( ProjectConfiguration.RETEST_PROJECT_CONFIG_FOLDER );
+		final Path projectRoot = ProjectRootFinderUtil.getProjectRoot();
+		return projectRoot != null ? projectRoot.resolve( ProjectConfiguration.RETEST_PROJECT_CONFIG_FOLDER ) : null;
 	}
 
 	public static Path findProjectConfigurationFolder( final Path path ) {
