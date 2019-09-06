@@ -170,7 +170,7 @@ public class RecheckImpl implements Recheck, SutStateLoader {
 	@Override
 	public void capTest() {
 		suite.addTest( currentTestResult );
-		final TestReplayResult finishedTestResult = TestReportFilter.filter( currentTestResult, filter );
+		final TestReplayResult finishedTestResult = TestReportFilter.filterTest( currentTestResult, filter );
 		currentTestResult = null;
 		final Set<LeafDifference> uniqueDifferences = finishedTestResult.getDifferences();
 		logger.info( "Found {} not ignored differences in test {}.", uniqueDifferences.size(),
