@@ -29,67 +29,68 @@ class TestReportFilterTest {
 
 	Filter filter;
 	AttributeDifference notFilterMe;
-	AttributesDifference originalAttributesDifference;
-	IdentifyingAttributesDifference originalIdentAttributesDifference;
+	AttributesDifference attributesDifference;
+	IdentifyingAttributesDifference identAttributesDifference;
 	Element element;
 	IdentifyingAttributes identAttributes;
 	Collection<ElementDifference> childDifferences;
-	ElementDifference originalElementDifference;
-	RootElementDifference originalRootElementDifference;
-	List<RootElementDifference> originalRootElementDifferences;
-	StateDifference originalStateDifference;
-	ActionReplayResult originalActionReplayResult;
-	TestReplayResult originalTestReplayResult;
-	SuiteReplayResult originalSuiteReplayResult;
-	TestReport originalTestReport;
+	ElementDifference elementDifference;
+	RootElementDifference rootElementDifference;
+	List<RootElementDifference> rootElementDifferences;
+	StateDifference stateDifference;
+	ActionReplayResult actionResult;
+	TestReplayResult testResult;
+	SuiteReplayResult suiteResult;
+	TestReport testReport;
 
 	@BeforeEach
 	void setUp() {
 		final String keyToFilter = "filterMe";
 		final String keyNotToFilter = "notFilterMe";
+
 		filter = new AttributeFilter( keyToFilter );
-		final AttributeDifference filterMe = new AttributeDifference( keyToFilter, null, null );
+
 		notFilterMe = new AttributeDifference( keyNotToFilter, null, null );
+
 		element = mock( Element.class );
 		identAttributes = mock( IdentifyingAttributes.class );
-		final List<AttributeDifference> attributeDifferences = Arrays.asList( filterMe, notFilterMe );
-		originalAttributesDifference = new AttributesDifference( attributeDifferences );
-		originalIdentAttributesDifference =
+		final List<AttributeDifference> attributeDifferences =
+				Arrays.asList( new AttributeDifference( keyToFilter, null, null ), notFilterMe );
+		attributesDifference = new AttributesDifference( attributeDifferences );
+		identAttributesDifference =
 				new IdentifyingAttributesDifference( mock( IdentifyingAttributes.class ), attributeDifferences );
 		final ElementDifference firstChildDifference =
-				new ElementDifference( element, originalAttributesDifference, originalIdentAttributesDifference,
+				new ElementDifference( element, attributesDifference, identAttributesDifference,
 						mock( Screenshot.class ), mock( Screenshot.class ), Collections.emptyList() );
 		final ElementDifference secondChildDifference =
-				new ElementDifference( element, originalAttributesDifference, originalIdentAttributesDifference,
+				new ElementDifference( element, attributesDifference, identAttributesDifference,
 						mock( Screenshot.class ), mock( Screenshot.class ), Collections.emptyList() );
 		childDifferences = Arrays.asList( firstChildDifference, secondChildDifference );
-		originalElementDifference =
-				new ElementDifference( element, originalAttributesDifference, originalIdentAttributesDifference,
-						mock( Screenshot.class ), mock( Screenshot.class ), childDifferences );
-		when( originalElementDifference.getIdentifyingAttributes() ).thenReturn( identAttributes );
-		when( originalElementDifference.getIdentifyingAttributes().identifier() ).thenReturn( "identifier" );
-		originalRootElementDifference = new RootElementDifference( originalElementDifference, mock( RootElement.class ),
-				mock( RootElement.class ) );
-		final RootElementDifference secondRootElementDifference = new RootElementDifference( originalElementDifference,
-				mock( RootElement.class ), mock( RootElement.class ) );
-		originalRootElementDifferences = Arrays.asList( originalRootElementDifference, secondRootElementDifference );
-		originalStateDifference =
-				new StateDifference( originalRootElementDifferences, mock( DurationDifference.class ) );
-		originalActionReplayResult = mock( ActionReplayResult.class );
-		when( originalActionReplayResult.getStateDifference() ).thenReturn( originalStateDifference );
-		originalTestReplayResult = new TestReplayResult( "test", 1 );
-		originalTestReplayResult.addAction( originalActionReplayResult );
-		originalSuiteReplayResult =
-				new SuiteReplayResult( "", 0, mock( GroundState.class ), "", mock( GroundState.class ) );
-		originalSuiteReplayResult.addTest( originalTestReplayResult );
-		originalTestReport = new TestReport();
-		originalTestReport.addSuite( originalSuiteReplayResult );
+		elementDifference = new ElementDifference( element, attributesDifference, identAttributesDifference,
+				mock( Screenshot.class ), mock( Screenshot.class ), childDifferences );
+		when( elementDifference.getIdentifyingAttributes() ).thenReturn( identAttributes );
+		when( elementDifference.getIdentifyingAttributes().identifier() ).thenReturn( "identifier" );
+		rootElementDifference =
+				new RootElementDifference( elementDifference, mock( RootElement.class ), mock( RootElement.class ) );
+		final RootElementDifference secondRootElementDifference =
+				new RootElementDifference( elementDifference, mock( RootElement.class ), mock( RootElement.class ) );
+		rootElementDifferences = Arrays.asList( rootElementDifference, secondRootElementDifference );
+		stateDifference = new StateDifference( rootElementDifferences, mock( DurationDifference.class ) );
+
+		actionResult = mock( ActionReplayResult.class );
+		when( actionResult.getStateDifference() ).thenReturn( stateDifference );
+		testResult = new TestReplayResult( "test", 1 );
+		testResult.addAction( actionResult );
+		suiteResult = new SuiteReplayResult( "", 0, mock( GroundState.class ), "", mock( GroundState.class ) );
+		suiteResult.addTest( testResult );
+		testReport = new TestReport();
+		testReport.addSuite( suiteResult );
 	}
 
 	//	@Test
 	//	void Attributes_differences_should_be_filtered_properly() throws Exception {
 	//		final AttributesDifference filtered =
-	//				TestReportFilter.filter( mock( Element.class ), originalAttributesDifference, filter );
+	//				TestReportFilter.filter( mock( Element.class ), attributesDifference, filter );
 	//		assertThat( filtered.getDifferences() ).containsExactly( notFilterMe );
 	//	}
 	//
@@ -97,7 +98,7 @@ class TestReportFilterTest {
 	//	void identifying_attributes_differences_should_be_filtered_properly() throws Exception {
 	//		when( element.getIdentifyingAttributes() ).thenReturn( mock( IdentifyingAttributes.class ) );
 	//		final IdentifyingAttributesDifference filtered =
-	//				TestReportFilter.filter( element, originalIdentAttributesDifference, filter );
+	//				TestReportFilter.filter( element, identAttributesDifference, filter );
 	//		assertThat( filtered.getAttributeDifferences() ).containsExactly( notFilterMe );
 	//	}
 	//
@@ -106,8 +107,7 @@ class TestReportFilterTest {
 	//		when( element.getIdentifyingAttributes() ).thenReturn( identAttributes );
 	//		final Collection<ElementDifference> filteredChildDifferences =
 	//				TestReportFilter.filter( childDifferences, filter );
-	//		final List<ElementDifference> elementDifferences =
-	//				filteredChildDifferences.stream().collect( Collectors.toList() );
+	//		final List<ElementDifference> elementDifferences = new ArrayList<>( filteredChildDifferences );
 	//		assertThat( elementDifferences.get( 0 ).getAttributesDifference().getDifferences() )
 	//				.containsExactly( notFilterMe );
 	//		assertThat( elementDifferences.get( 1 ).getAttributesDifference().getDifferences() )
@@ -117,8 +117,7 @@ class TestReportFilterTest {
 	//	@Test
 	//	void element_difference_and_child_differences_should_be_filtered_properly() throws Exception {
 	//		when( element.getIdentifyingAttributes() ).thenReturn( identAttributes );
-	//		final ElementDifference filteredElementDifference =
-	//				TestReportFilter.filter( originalElementDifference, filter );
+	//		final ElementDifference filteredElementDifference = TestReportFilter.filter( elementDifference, filter );
 	//		final List<ElementDifference> childElementDiffferences =
 	//				filteredElementDifference.getChildDifferences().stream()//
 	//						.collect( Collectors.toList() );
@@ -151,10 +150,10 @@ class TestReportFilterTest {
 	//
 	//	@Test
 	//	void root_element_difference_should_be_filtered_properly() throws Exception {
-	//		when( originalElementDifference.getIdentifyingAttributes() ).thenReturn( identAttributes );
-	//		when( originalElementDifference.getIdentifyingAttributes().identifier() ).thenReturn( "identifier" );
+	//		when( elementDifference.getIdentifyingAttributes() ).thenReturn( identAttributes );
+	//		when( elementDifference.getIdentifyingAttributes().identifier() ).thenReturn( "identifier" );
 	//		final RootElementDifference filteredRootElementDifference =
-	//				TestReportFilter.filter( originalRootElementDifference, filter );
+	//				TestReportFilter.filter( rootElementDifference, filter );
 	//		final List<AttributeDifference> differences =
 	//				filteredRootElementDifference.getElementDifference().getAttributesDifference().getDifferences();
 	//		assertThat( differences ).containsExactly( notFilterMe );
@@ -163,7 +162,7 @@ class TestReportFilterTest {
 	//	@Test
 	//	void list_of_root_element_differences_should_be_filtered_properly() throws Exception {
 	//		final List<RootElementDifference> filteredRootElementDifferences =
-	//				TestReportFilter.filterRootElementDifference( originalRootElementDifferences, filter );
+	//				TestReportFilter.filterRootElementDifference( rootElementDifferences, filter );
 	//		final List<AttributeDifference> differences = filteredRootElementDifferences.get( 0 ).getElementDifference()
 	//				.getAttributesDifference().getDifferences();
 	//		assertThat( differences ).contains( notFilterMe );
@@ -172,7 +171,7 @@ class TestReportFilterTest {
 	//	@Test
 	//	void state_difference_should_be_filtered_properly() throws Exception {
 	//		final StateDifference filteredStateDifference =
-	//				TestReportFilter.filterStateDifference( originalStateDifference, filter );
+	//				TestReportFilter.filterStateDifference( stateDifference, filter );
 	//		final List<AttributeDifference> differences = filteredStateDifference.getRootElementDifferences().get( 0 )
 	//				.getElementDifference().getAttributesDifference().getDifferences();
 	//		assertThat( differences ).containsExactly( notFilterMe );
@@ -198,7 +197,7 @@ class TestReportFilterTest {
 	//	@Test
 	//	void action_replay_result_should_be_filtered_properly() throws Exception {
 	//		final ActionReplayResult filteredActionReplayResult =
-	//				TestReportFilter.filterActionReplayResult( originalActionReplayResult, filter );
+	//				TestReportFilter.filterActionReplayResult( actionResult, filter );
 	//		final List<AttributeDifference> differences = filteredActionReplayResult.getStateDifference()
 	//				.getRootElementDifferences().get( 0 ).getElementDifference().getAttributesDifference().getDifferences();
 	//		assertThat( differences ).containsExactly( notFilterMe );
@@ -230,8 +229,7 @@ class TestReportFilterTest {
 	//
 	//	@Test
 	//	void test_replay_result_should_be_filtered_properly() throws Exception {
-	//		final TestReplayResult filteredTestReplayResult =
-	//				TestReportFilter.filterTestReplayResult( originalTestReplayResult, filter );
+	//		final TestReplayResult filteredTestReplayResult = TestReportFilter.filterTestReplayResult( testResult, filter );
 	//		final List<AttributeDifference> differences = filteredTestReplayResult.getActionReplayResults().get( 0 )
 	//				.getStateDifference().getRootElementDifferences().get( 0 ).getElementDifference()
 	//				.getAttributesDifference().getDifferences();
@@ -240,8 +238,7 @@ class TestReportFilterTest {
 	//
 	//	@Test
 	//	void suite_replay_result_should_be_filtered_properly() throws Exception {
-	//		final SuiteReplayResult filteredSuiteReplayResult =
-	//				TestReportFilter.filterSuite( originalSuiteReplayResult, filter );
+	//		final SuiteReplayResult filteredSuiteReplayResult = TestReportFilter.filterSuite( suiteResult, filter );
 	//		final StateDifference stateDifference = filteredSuiteReplayResult.getTestReplayResults().get( 0 )
 	//				.getActionReplayResults().get( 0 ).getStateDifference();
 	//		final List<AttributeDifference> differences = stateDifference.getRootElementDifferences().get( 0 )
@@ -251,7 +248,7 @@ class TestReportFilterTest {
 	//
 	//	@Test
 	//	void test_report_should_be_filtered_properly() throws Exception {
-	//		final TestReport filteredTestReport = TestReportFilter.filter( originalTestReport, filter );
+	//		final TestReport filteredTestReport = TestReportFilter.filter( testReport, filter );
 	//		final SuiteReplayResult suiteReplayResult = filteredTestReport.getSuiteReplayResults().get( 0 );
 	//		final ActionReplayResult actionReplayResult =
 	//				suiteReplayResult.getTestReplayResults().get( 0 ).getActionReplayResults().get( 0 );
@@ -259,5 +256,4 @@ class TestReportFilterTest {
 	//				.getRootElementDifferences().get( 0 ).getElementDifference().getAttributesDifference().getDifferences();
 	//		assertThat( differences ).containsExactly( notFilterMe );
 	//	}
-	//}
 }
