@@ -30,7 +30,7 @@ public class TestReportFilter {
 		return filteredReport;
 	}
 
-	private static SuiteReplayResult filterSuite( final SuiteReplayResult result, final Filter filter ) {
+	static SuiteReplayResult filterSuite( final SuiteReplayResult result, final Filter filter ) {
 		final SuiteReplayResult newResult = newSuiteReplayResult( result );
 
 		result.getTestReplayResults() //
@@ -56,7 +56,7 @@ public class TestReportFilter {
 		return new TestReplayResult( result.getName(), result.getTestNr() );
 	}
 
-	private static ActionReplayResult filterAction( final ActionReplayResult result, final Filter filter ) {
+	static ActionReplayResult filterAction( final ActionReplayResult result, final Filter filter ) {
 		if ( result instanceof NoGoldenMasterActionReplayResult ) {
 			return result;
 		}
@@ -72,7 +72,7 @@ public class TestReportFilter {
 				filteredStateDifference, result.getDuration(), new SutState( result.getWindows() ) );
 	}
 
-	private static StateDifference filterStateDifference( final StateDifference stateDifference, final Filter filter ) {
+	static StateDifference filterStateDifference( final StateDifference stateDifference, final Filter filter ) {
 		if ( stateDifference == null || stateDifference.getRootElementDifferences().isEmpty() ) {
 			return stateDifference;
 		}
@@ -85,8 +85,7 @@ public class TestReportFilter {
 		return diffs.stream().map( diff -> filterRootElementDifference( diff, filter ) ).collect( Collectors.toList() );
 	}
 
-	private static RootElementDifference filterRootElementDifference( final RootElementDifference diff,
-			final Filter filter ) {
+	static RootElementDifference filterRootElementDifference( final RootElementDifference diff, final Filter filter ) {
 		return new RootElementDifference( filterElementDifference( diff.getElementDifference(), filter ),
 				diff.getExpectedDescriptor(), diff.getActualDescriptor() );
 	}
