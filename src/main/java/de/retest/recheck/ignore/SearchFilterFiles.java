@@ -81,9 +81,12 @@ public class SearchFilterFiles {
 	 */
 	public static List<Pair<String, FilterLoader>> getProjectFilterFiles() {
 		return ProjectConfiguration.getInstance().getProjectConfigFolder() //
-				.map( path -> path.resolve( FILTER_DIR_NAME ) ) //
-				.map( SearchFilterFiles::loadFiltersFromDirectory ) //
+				.map( SearchFilterFiles::getDirectoryFilterFiles ) //
 				.orElse( Collections.emptyList() );
+	}
+
+	public static List<Pair<String, FilterLoader>> getDirectoryFilterFiles( final Path root ) {
+		return loadFiltersFromDirectory( root.resolve( FILTER_DIR_NAME ) );
 	}
 
 	/**
@@ -123,7 +126,21 @@ public class SearchFilterFiles {
 	 */
 	public static Map<String, Filter> toFileNameFilterMapping() {
 		// Concat from specific to generic.
-		return Stream.of( getProjectFilterFiles(), getUserFilterFiles(), getDefaultFilterFiles() )
+		return loadFilters( Stream.of( getProjectFilterFiles(), getUserFilterFiles(), getDefaultFilterFiles() ) );
+	}
+
+	/**
+	 * @return Mapping from file names to filter. In the case of duplicates, specific filters are preferred over generic
+	 *         filters (i.e. directory filer over user filter over default filter).
+	 */
+	public static Map<String, Filter> toFileNameFilterMapping( final Path directory ) {
+		// Concat from specific to generic.
+		return loadFilters(
+				Stream.of( getDirectoryFilterFiles( directory ), getUserFilterFiles(), getDefaultFilterFiles() ) );
+	}
+
+	private static Map<String, Filter> loadFilters( final Stream<List<Pair<String, FilterLoader>>> files ) {
+		return files //
 				.flatMap( List::stream ) //
 				.collect( Collectors.toMap(
 						// Use the file name as key.

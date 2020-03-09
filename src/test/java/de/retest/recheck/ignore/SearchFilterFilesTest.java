@@ -62,6 +62,17 @@ class SearchFilterFilesTest {
 	}
 
 	@Test
+	void getDirectoryFilterFiles_should_locate_filters_in_specific_directory( @TempDir final Path temp )
+			throws Exception {
+		final Path project = temp.resolve( "local" );
+		final Path path = project.resolve( SearchFilterFiles.FILTER_DIR_NAME ).resolve( "filter.filter" );
+		Files.createDirectories( path.getParent() );
+		Files.createFile( path );
+
+		assertThat( SearchFilterFiles.getDirectoryFilterFiles( project ) ).hasSize( 1 );
+	}
+
+	@Test
 	@ClearSystemProperty( key = RETEST_PROJECT_ROOT )
 	void filter_mapping_should_prefer_project_over_default_filters() throws Exception {
 		final String posFilterFileName = "positioning.filter";
@@ -121,6 +132,18 @@ class SearchFilterFilesTest {
 		final Map<String, Filter> mapping = SearchFilterFiles.toFileNameFilterMapping();
 		final CompoundFilter filter = (CompoundFilter) mapping.get( posFilterFileName );
 		assertThat( unwrap( filter.getFilters() ) ).hasToString( "[#userFilter]" );
+	}
+
+	@Test
+	@ClearSystemProperty( key = "user.home" )
+	void toFileNameFilterMapping_should_locate_filters_in_specific_directory( @TempDir final Path temp )
+			throws Exception {
+		final Path project = temp.resolve( "local" );
+		final Path path = project.resolve( SearchFilterFiles.FILTER_DIR_NAME ).resolve( "filter.filter" );
+		Files.createDirectories( path.getParent() );
+		Files.createFile( path );
+
+		assertThat( SearchFilterFiles.toFileNameFilterMapping( project ) ).containsKey( "filter.filter" );
 	}
 
 	@Test
